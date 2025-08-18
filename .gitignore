@@ -1,0 +1,53 @@
+# ======================================
+# Java / Spring Boot
+# ======================================
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+*.tmp
+*.swp
+hs_err_pid*
+replay_pid*
+
+# IDEs (IntelliJ, Eclipse, VS Code)
+.idea/
+*.ipr
+*.iws
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# ======================================
+# Angular
+# ======================================
+node_modules/
+dist/
+tmp/
+out-tsc/
+.angular/
+.angular-cache/
+coverage/
+*.tgz
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# ======================================
+# Arquivos de SO
+# ======================================
+.DS_Store
+Thumbs.db
+
+# ======================================
+# Arquivos .txt (logs, dumps, notas, etc)
+# ======================================
+*.txt
+

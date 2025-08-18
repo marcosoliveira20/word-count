@@ -1,0 +1,50 @@
+{
+  "realm": "english-realm",
+  "enabled": true,
+  "sslRequired": "NONE",
+  "attributes": {
+    "frontendUrl": "http://localhost:8081"
+  },
+  "clients": [
+    {
+      "clientId": "english-frontend",
+      "rootUrl": "http://localhost:4200",
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["*"],
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "english-backend",
+      "secret": "backend-secret-change-me",
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "redirectUris": ["*"]
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "writer" }
+    ]
+  },
+  "users": [
+    {
+      "username": "test1",
+      "enabled": true,
+      "emailVerified": false,
+      "credentials": [{ "type": "password", "value": "test1", "temporary": false }],
+      "realmRoles": ["writer"]
+    },
+    {
+      "username": "test2",
+      "enabled": true,
+      "emailVerified": false,
+      "credentials": [{ "type": "password", "value": "test2", "temporary": true }],
+      "realmRoles": ["writer"]
+    }
+
+
+  ]
+}

@@ -1,0 +1,58 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { Word, WordCountResponse } from './word.model';
+
+
+@Injectable({ providedIn: 'root' })
+export class WordService {
+  private readonly base = '/api/words'; // vai passar pelo proxy p/ :8080
+
+  constructor(private http: HttpClient) {}
+
+  createWord(name: string){
+    return this.http.post(`${this.base}/usage`, { name });
+  }
+
+  getLevels(): Observable<{levels: {level: string; count: number}[]}>{
+    return this.http.get<{levels: {level: string; count: number}[]}>(`${this.base}/levels`);
+  }
+
+  getWordsByLevel(level: string){
+    return this.http.get<{words: {name:string; used_times:number; first_use:string; last_use:string}[]}>(
+      `${this.base}`,
+      { params: { level } }
+    );
+  }
+
+  // (opcional) detalhes e busca
+  getWordDetail(id: number){
+    return this.http.get(`${this.base}/${id}`);
+  }
+
+  searchWords(q: string){
+    return this.http.get<{words: any[]}>(`${this.base}`, { params: { search: q }});
+  }
+
+  addWord(name: string): Observable<void> {
+    const body: Word = { name };
+    return this.http.post<void>(`${this.base}/usage`, body);
+  }
+
+  getCount(): Observable<number> {
+    return this.http.get<WordCountResponse | number>(this.base + '/info').pipe(
+      map((resp: any) => {
+
+        if(resp.number) return resp.number;
+
+        if (typeof resp === 'number') return resp;
+
+        if (resp && typeof resp.count === 'number') return resp.count;
+        
+        if (Array.isArray(resp)) return resp.length;
+        return 0;
+      })
+    );
+  }
+}
+
