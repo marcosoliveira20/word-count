@@ -9,6 +9,19 @@
     />
     <button type="submit">Enviar</button>
   </form>
+    <div class="upload">
+    <label for="fileUpload" class="upload-label">📂 Upload de Arquivo</label>
+    <input
+      id="fileUpload"
+      type="file"
+      (change)="onFileSelected($event)"
+      class="upload-input"
+    />
+    <button type="button" (click)="onUpload()" [disabled]="!selectedFile">
+      Enviar Arquivo
+    </button>
+  </div>
+
 
   <div class="feedback">
     <p *ngIf="successMsg()" class="ok">Palavra cadastrada com sucesso</p>

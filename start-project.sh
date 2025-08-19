@@ -1,41 +1,56 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "🚀 Iniciando Count Word (compose + keycloak + backend + frontend)..."
+echo "🚀 Iniciando Count Word (compose + keycloak + backend + minio + kafka + frontend)..."
 
 # ===============================
-# 0) Variáveis (ajuste se quiser)
-# =================``==============
-# Nome do container do Keycloak (tenta auto-descobrir se vazio)
-KEYCLOAK_CONTAINER="${KEYCLOAK_CONTAINER:-$(docker ps --filter "name=keycloak" --format "{{.Names}}" | head -n1)}"
-# Credenciais do admin (devem bater com seu docker-compose)
+# 0) Variáveis
+# ===============================
+KEYCLOAK_CONTAINER="${KEYCLOAK_CONTAINER:-$(docker ps --filter "name=english-keycloak" --format "{{.Names}}" | head -n1)}"
 KC_USER="${KC_USER:-admin}"
 KC_PASS="${KC_PASS:-admin}"
 KC_URL_IN_CONTAINER="http://localhost:8080"
-# Caminho do frontend Angular relativo à RAIZ do projeto
+
 FRONT_DIR="${FRONT_DIR:-frontend}"
 FRONT_PORT="${FRONT_PORT:-4200}"
 FRONT_PROXY="${FRONT_PROXY:-proxy.conf.json}"
-# Caminho do diretório onde está o docker-compose
-COMPOSE_DIR="${COMPOSE_DIR:-backend}"
+COMPOSE_DIR="${COMPOSE_DIR:-infrastructure/docker}"
+DELAY_BETWEEN_1_AND_2="${DELAY_BETWEEN_1_AND_2:-5}"
 
+# MinIO
+MINIO_BUCKET="${MINIO_BUCKET:-countword}"
+MINIO_HOSTNAME_IN_NET="${MINIO_HOSTNAME_IN_NET:-minio}"
+MINIO_PORT="${MINIO_PORT:-9000}"
+MINIO_USER="${MINIO_USER:-admin}"
+MINIO_PASS="${MINIO_PASS:-admin123}"
 
+# Imagens utilitárias
+CURL_IMAGE="curlimages/curl:8.10.1"
+MC_IMAGE="minio/mc:latest"
+
+# Helper env para o mc
+export MC_ALIAS_ENV="MC_HOST_local=http://${MINIO_USER}:${MINIO_PASS}@${MINIO_HOSTNAME_IN_NET}:${MINIO_PORT}"
 
 # ======================================
-# 1) Subir backend + db + keycloak
+# 1) Subir todos os serviços
 # ======================================
 echo "📦 Subindo serviços com Docker Compose (dir: ${COMPOSE_DIR})..."
 (
-  cd "${COMPOSE_DIR}" || { echo "❌ Pasta '${COMPOSE_DIR}' não encontrada a partir da raiz."; exit 1; }
+  cd "${COMPOSE_DIR}" || { echo "❌ Pasta '${COMPOSE_DIR}' não encontrada."; exit 1; }
   docker compose up -d --build
 )
 
+if [[ "${DELAY_BETWEEN_1_AND_2}" =~ ^[0-9]+$ ]] && (( DELAY_BETWEEN_1_AND_2 > 0 )); then
+  echo "⏲️ Aguardando ${DELAY_BETWEEN_1_AND_2}s antes de configurar o Keycloak..."
+  sleep "${DELAY_BETWEEN_1_AND_2}"
+fi
+
 # ======================================
-# 2) Configurar Keycloak no container
+# 2) Configuração Keycloak
 # ======================================
+KEYCLOAK_CONTAINER="$(docker ps --filter "name=english-keycloak" --format "{{.Names}}" | head -n1 || true)"
 if [[ -z "${KEYCLOAK_CONTAINER}" ]]; then
-  echo "❌ Não encontrei um container do Keycloak em execução (filtro: name=keycloak)."
-  echo "   Dica: export KEYCLOAK_CONTAINER=<nome-do-container> e rode de novo."
+  echo "❌ Keycloak não encontrado."
   exit 1
 fi
 echo "🔎 Usando container do Keycloak: ${KEYCLOAK_CONTAINER}"
@@ -44,56 +59,69 @@ exec_in() {
   docker exec -i "${KEYCLOAK_CONTAINER}" bash -lc "$*"
 }
 
-echo "⏳ Aguardando Keycloak responder na porta interna 8080..."
+echo "⏳ Aguardando Keycloak na porta 8080..."
 exec_in 'until (exec 3<>/dev/tcp/127.0.0.1/8080); do sleep 1; done'
-echo "✅ Keycloak UP (porta interna 8080)."
+echo "✅ Keycloak UP."
 
 KCADM="/opt/keycloak/bin/kcadm.sh"
-
-echo "🔐 Autenticando kcadm..."
 exec_in "${KCADM} config credentials --server ${KC_URL_IN_CONTAINER} --realm master --user ${KC_USER} --password ${KC_PASS}"
-
-echo "🔧 sslRequired=NONE em 'master'..."
 exec_in "${KCADM} update realms/master -s sslRequired=NONE"
-
-echo "🔧 sslRequired=NONE em 'english-realm' (ignora se não existir)..."
 exec_in "${KCADM} update realms/english-realm -s sslRequired=NONE || true"
-
-echo "🌐 Definindo frontendUrl do realm master para http://localhost:8081 ..."
 exec_in "${KCADM} update realms/master -s 'attributes.\"frontendUrl\"=\"http://localhost:8081\"'"
 
 # ======================================
-# 3) Aguardar backend subir (porta 8080)
+# 3) Configuração MinIO
 # ======================================
-echo "⏳ Aguardando backend (porta 8080)..."
-# tenta /actuator/health; se falhar, cai para teste de socket
-if ! curl -sf --max-time 2 http://localhost:8080/actuator/health >/dev/null 2>&1; then
-  until (exec 3<>/dev/tcp/127.0.0.1/8080); do
-    sleep 3
-    echo "   Backend ainda iniciando..."
-  done
+echo "🔎 Descobrindo rede do container 'minio'..."
+MINIO_NET="$(docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s" $k}}{{end}}' minio 2>/dev/null || true)"
+if [[ -z "${MINIO_NET}" ]]; then
+  echo "❌ Não consegui detectar a rede do container 'minio'."
+  docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Networks}}'
+  exit 1
 fi
-echo "✅ Backend disponível em http://localhost:8080"
+echo "🌐 Rede do MinIO: ${MINIO_NET}"
+
+MINIO_ENDPOINT="http://${MINIO_HOSTNAME_IN_NET}:${MINIO_PORT}"
+echo "⏳ Aguardando MinIO ficar pronto em ${MINIO_ENDPOINT} ..."
+until docker run --rm --network "${MINIO_NET}" "${CURL_IMAGE}" -sSf "${MINIO_ENDPOINT}/minio/health/ready" >/dev/null; do
+  echo "   MinIO ainda não está pronto... tentando novamente em 2s"
+  sleep 2
+done
+echo "✅ MinIO pronto."
+
+echo "🪣 Criando bucket '${MINIO_BUCKET}' (idempotente)..."
+docker run --rm --network "${MINIO_NET}" -e "${MC_ALIAS_ENV}" \
+  "${MC_IMAGE}" mb -p "local/${MINIO_BUCKET}" || true
+
+docker run --rm --network "${MINIO_NET}" -e "${MC_ALIAS_ENV}" \
+  "${MC_IMAGE}" ls local || true
+echo "✅ Bucket '${MINIO_BUCKET}' OK."
 
 # ======================================
-# 4) Iniciar frontend Angular com proxy
+# 4) Aguardar backend
 # ======================================
-echo "🌐 Iniciando frontend Angular em ${FRONT_DIR} (porta ${FRONT_PORT}) com proxy ${FRONT_PROXY}..."
-cd "${FRONT_DIR}" || { echo "❌ Pasta '${FRONT_DIR}' não encontrada a partir da raiz."; exit 1; }
+echo "⏳ Aguardando backend (porta 8080)..."
+until (exec 3<>/dev/tcp/127.0.0.1/8080); do
+  sleep 3
+  echo "   Backend ainda iniciando..."
+done
+echo "✅ Backend disponível."
+
+# ======================================
+# 5) Iniciar frontend Angular
+# ======================================
+echo "🌐 Iniciando frontend Angular em ${FRONT_DIR} (porta ${FRONT_PORT})..."
+cd "${FRONT_DIR}" || { echo "❌ Pasta '${FRONT_DIR}' não encontrada."; exit 1; }
 
 if [ ! -d "node_modules" ]; then
   echo "📥 Instalando dependências..."
   npm install
 fi
 
-# Start em background para liberar o terminal
 npx ng serve --port "${FRONT_PORT}" --proxy-config "${FRONT_PROXY}" --open &
 FRONT_PID=$!
 
 echo "✅ Frontend rodando: http://localhost:${FRONT_PORT}"
-echo "ℹ️  Para encerrar:"
-echo "    1) Parar Angular: kill ${FRONT_PID}"
-echo "    2) Parar serviços: (cd ${COMPOSE_DIR} && docker compose down)"
+echo "ℹ️ Para encerrar: kill ${FRONT_PID} && (cd ${COMPOSE_DIR} && docker compose down)"
 
-# Mantém o script “vivo” enquanto o Angular estiver rodando
 wait ${FRONT_PID}

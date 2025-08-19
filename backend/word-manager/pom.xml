@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>br.com.marcosoliveira20</groupId>
-    <artifactId>english</artifactId>
+    <artifactId>word-manager</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>english</name>
+    <name>word-manager</name>
     <description>english</description>
     <url/>
     <licenses>

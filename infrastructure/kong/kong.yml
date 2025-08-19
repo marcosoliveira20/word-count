@@ -1,0 +1,19 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: english-api
+    url: http://backend:8080
+    routes:
+      - name: english-api-route
+        paths: ["/api"]
+        strip_path: false
+        methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+        plugins:
+          - name: cors
+            config:
+              origins: ["http://localhost:4200"]
+              methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+              headers: ["Authorization","Content-Type"]
+              credentials: true
+              max_age: 3600

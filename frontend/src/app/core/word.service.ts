@@ -54,5 +54,18 @@ export class WordService {
       })
     );
   }
+
+  onUpload(selectedFile: File) {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    this.http.post("/api/uploads", formData).subscribe({
+      next: () => alert("Upload realizado com sucesso"),
+      error: (err) => alert("Erro no upload: " + err.message),
+    });
+  }
+
 }
 
