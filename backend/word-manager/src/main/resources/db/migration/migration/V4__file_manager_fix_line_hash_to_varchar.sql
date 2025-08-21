@@ -1,0 +1,2 @@
+ALTER TABLE processed_line
+  MODIFY COLUMN line_hash VARCHAR(40) NOT NULL;

@@ -6,6 +6,7 @@ import br.com.marcosoliveira20.english.dto.WordUsageDTO;
 import br.com.marcosoliveira20.english.model.AppUser;
 import br.com.marcosoliveira20.english.model.Word;
 import br.com.marcosoliveira20.english.model.WordUsageLog;
+import br.com.marcosoliveira20.english.repository.AppUserRepo;
 import br.com.marcosoliveira20.english.repository.WordRepo;
 import br.com.marcosoliveira20.english.repository.WordUsageLogRepo;
 import br.com.marcosoliveira20.english.repository.projection.LevelCountRow;
@@ -30,6 +31,7 @@ public class WordService {
     private final WordUsageLogRepo wordUsageLogRepo;
 
     private final Clock clock = Clock.systemUTC();
+    private final AppUserRepo appUserRepo;
 
     // ---------- API usada pelo controller ----------
 
@@ -38,6 +40,35 @@ public class WordService {
      */
     @Transactional
     public WordUsageLog registerUsageByName(String rawName, AppUser user) {
+        String name = normalizeName(rawName);
+        if (!StringUtils.hasText(name)) {
+            throw new IllegalArgumentException("name vazio após normalização");
+        }
+
+        Word word = wordRepo.findByNameIgnoreCase(name)
+                .orElseGet(() -> {
+                    Word w = new Word();
+                    w.setName(name);
+                    // created_at / updated_at via @PrePersist/@PreUpdate ou default do BD
+                    return null;
+                });
+
+        if (word == null) {
+            throw new IllegalArgumentException("Palavra inexistente");
+        }
+
+        WordUsageLog log = new WordUsageLog();
+        log.setWord(word);
+        log.setUser(user);
+        log.setUsedAt(LocalDateTime.now(clock));
+        return wordUsageLogRepo.save(log);
+    }
+
+    @Transactional
+    public WordUsageLog registerUsageByName(String rawName, String idUser) {
+
+        AppUser user = appUserRepo.getAppUserById(idUser).getFirst();
+
         String name = normalizeName(rawName);
         if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("name vazio após normalização");

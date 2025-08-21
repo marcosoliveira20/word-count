@@ -2,18 +2,33 @@ _format_version: "3.0"
 _transform: true
 
 services:
-  - name: english-api
-    url: http://backend:8080
+services:
+  - name: filemanager
+    url: http://english-file-manager:8082
     routes:
-      - name: english-api-route
-        paths: ["/api"]
+      - name: uploads
+        paths: [ /api/uploads ]
+        methods: [ POST, OPTIONS ]
         strip_path: false
-        methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+        request_buffering: false
         plugins:
           - name: cors
             config:
-              origins: ["http://localhost:4200"]
-              methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-              headers: ["Authorization","Content-Type"]
+              origins: ["*"]
+              methods: ["GET","POST","OPTIONS"]
+              headers: ["*"]
               credentials: true
               max_age: 3600
+
+              credentials: true
+              max_age: 3600
+
+  - name: word
+    url: http://word-manager:8080
+    routes:
+      - name: word-api
+        paths:
+          - /api/word
+        methods: [ GET, POST, OPTIONS ]
+        strip_path: false
+        preserve_host: true

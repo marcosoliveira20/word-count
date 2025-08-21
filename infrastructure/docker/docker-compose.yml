@@ -43,12 +43,12 @@ services:
       retries: 30
     networks: [net]
 
-  # --- Backend ---
-  backend:
+  # --- Backend (Word Manager / domínio) ---
+  word-manager:
     build:
       context: ../../backend/word-manager
       dockerfile: Dockerfile
-    container_name: english-backend
+    container_name: word-manager
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/english?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
@@ -57,6 +57,9 @@ services:
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/english-realm/protocol/openid-connect/certs
       KC_AUTH_SERVER_URL: http://keycloak:8080/realms/english-realm
       SERVER_FORWARD_HEADERS_STRATEGY: framework
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL: PLAINTEXT
+      SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET: earliest  # opcional mas útil p/ consumir do início em dev
     ports: ["8080:8080"]
     depends_on:
       db:
@@ -65,7 +68,40 @@ services:
         condition: service_healthy
     networks: [net]
 
-  # --- Kong (opcional para dev; já configurado para /api) ---
+  # --- File Manager (processar arquivos) ---
+  file-manager:
+    build:
+      context: ../../backend/file-manager
+      dockerfile: Dockerfile
+    container_name: english-file-manager
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/english?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: app
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/english-realm
+
+      # Config do file-manager
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: admin123
+      MINIO_BUCKET: countword
+      DOMAIN_BASE_URL: http://word-manager:8080
+      PUBLISH_MODE: rest
+      FILE_ALLOWED_CONTENT_TYPES: text/plain
+      FILE_MAX_SIZE_BYTES: 2097152
+      WEBHOOK_HMAC_SECRET: ""
+    ports: ["8082:8082"]
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks: [net]
+
+  # --- Kong (opcional para dev; expõe /api) ---
   kong:
     image: kong:3.6
     container_name: kong
@@ -81,7 +117,7 @@ services:
       - "8000:8000"
       - "8001:8001"
     depends_on:
-      backend:
+      word-manager:
         condition: service_started
       keycloak:
         condition: service_healthy
@@ -94,11 +130,10 @@ services:
     ports: ["1337:1337"]
     environment:
       NODE_ENV: development
-    networks: [net]
     depends_on:
       - kong
+    networks: [net]
 
-  # --- MinIO (S3 local) ---
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -106,20 +141,26 @@ services:
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: admin123
-      MINIO_NOTIFY_KAFKA_ENABLE: "on"
-      MINIO_NOTIFY_KAFKA_BROKERS: "kafka:9092"
-      MINIO_NOTIFY_KAFKA_TOPIC: "uploads.new"
-      MINIO_NOTIFY_KAFKA_SASL: "off"
+
+      # >>> NOVO: define o destino Kafka "k1"
+      MINIO_NOTIFY_KAFKA_ENABLE_k1: "on"
+      MINIO_NOTIFY_KAFKA_BROKERS_k1: "kafka:9092"
+      MINIO_NOTIFY_KAFKA_TOPIC_k1: "minio-events"
+
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
     networks: [net]
-    depends_on:
-      - kafka
 
-  # --- Kafka (KRaft) ---
+
+  # --- Kafka (KRaft, para evolução futura) ---
   kafka:
     image: bitnami/kafka:latest
     container_name: kafka

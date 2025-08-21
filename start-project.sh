@@ -15,7 +15,7 @@ FRONT_DIR="${FRONT_DIR:-frontend}"
 FRONT_PORT="${FRONT_PORT:-4200}"
 FRONT_PROXY="${FRONT_PROXY:-proxy.conf.json}"
 COMPOSE_DIR="${COMPOSE_DIR:-infrastructure/docker}"
-DELAY_BETWEEN_1_AND_2="${DELAY_BETWEEN_1_AND_2:-5}"
+DELAY_BETWEEN_1_AND_2="${DELAY_BETWEEN_1_AND_2:-2}"
 
 # MinIO
 MINIO_BUCKET="${MINIO_BUCKET:-countword}"
@@ -24,11 +24,17 @@ MINIO_PORT="${MINIO_PORT:-9000}"
 MINIO_USER="${MINIO_USER:-admin}"
 MINIO_PASS="${MINIO_PASS:-admin123}"
 
+# Kafka (bitnami/kafka no compose usa container_name: kafka)
+KAFKA_BOOTSTRAP="${KAFKA_BOOTSTRAP:-kafka:9092}"
+KAFKA_TOPIC="${KAFKA_TOPIC:-minio-events}"   # usado p/ MinIO -> Kafka
+KAFKA_RETENTION_MS="${KAFKA_RETENTION_MS:-43200000}"  # 12h por padrão p/ tópicos do domínio
+CW_TOPICS=("cw.file.stored" "cw.word.detected")
+
 # Imagens utilitárias
 CURL_IMAGE="curlimages/curl:8.10.1"
 MC_IMAGE="minio/mc:latest"
 
-# Helper env para o mc
+# Helper env para o mc (dispensa 'mc alias set')
 export MC_ALIAS_ENV="MC_HOST_local=http://${MINIO_USER}:${MINIO_PASS}@${MINIO_HOSTNAME_IN_NET}:${MINIO_PORT}"
 
 # ======================================
@@ -68,6 +74,32 @@ exec_in "${KCADM} config credentials --server ${KC_URL_IN_CONTAINER} --realm mas
 exec_in "${KCADM} update realms/master -s sslRequired=NONE"
 exec_in "${KCADM} update realms/english-realm -s sslRequired=NONE || true"
 exec_in "${KCADM} update realms/master -s 'attributes.\"frontendUrl\"=\"http://localhost:8081\"'"
+
+# ======================================
+# 2.b) Garantir existência de tópicos no Kafka
+# ======================================
+echo "🧩 Garantindo existência do tópico Kafka '${KAFKA_TOPIC:-minio-events}'..."
+docker exec kafka bash -lc "/opt/bitnami/kafka/bin/kafka-topics.sh \
+  --bootstrap-server localhost:9092 \
+  --create --if-not-exists \
+  --topic ${KAFKA_TOPIC:-minio-events} \
+  --partitions 1 --replication-factor 1" || true
+
+echo "🧩 Garantindo tópicos de domínio (retenção ${KAFKA_RETENTION_MS} ms ~ 12h)..."
+for t in \"${CW_TOPICS[@]}\"; do
+  # criar se não existir
+  docker exec kafka bash -lc "/opt/bitnami/kafka/bin/kafka-topics.sh \
+    --bootstrap-server localhost:9092 \
+    --create --if-not-exists \
+    --topic ${t} \
+    --partitions 1 --replication-factor 1" || true
+
+  # aplicar retenção de 12h e sem limite por tamanho (cleanup delete)
+  docker exec kafka bash -lc "/opt/bitnami/kafka/bin/kafka-configs.sh \
+    --bootstrap-server localhost:9092 \
+    --entity-type topics --entity-name ${t} --alter \
+    --add-config retention.ms=${KAFKA_RETENTION_MS},retention.bytes=-1,cleanup.policy=delete" || true
+done
 
 # ======================================
 # 3) Configuração MinIO
