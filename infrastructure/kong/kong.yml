@@ -28,7 +28,7 @@ services:
     routes:
       - name: word-api
         paths:
-          - /api/word
+          - /api/words
         methods: [ GET, POST, OPTIONS ]
         strip_path: false
         preserve_host: true

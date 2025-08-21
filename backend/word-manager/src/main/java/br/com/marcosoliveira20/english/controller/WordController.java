@@ -36,7 +36,7 @@ public class WordController {
      * Body: { "name": "get" }
      * 201 Created + Location: /api/words/{wordId}/usage
      */
-    @PostMapping(path = "/usage", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/usages", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> registerUsageByName(@RequestBody UsageRequestDTO body,
                                                  @AuthenticationPrincipal Jwt jwt) {
         if (body == null || body.getName() == null || body.getName().isBlank()) {
@@ -49,7 +49,7 @@ public class WordController {
         return ResponseEntity.ok(saved);
     }
 
-    @GetMapping(path = "/info")
+    @GetMapping(path = "/infos")
     public ResponseEntity<?> getCountWord( @AuthenticationPrincipal Jwt jwt) {
 
         NumberDTO dto = new NumberDTO();
