@@ -1,9 +1,20 @@
 # Count Word
 
-Aplicação web para cadastro e contagem de palavras em inglês, permitindo registrar usos, acompanhar métricas por usuário e visualizar estatísticas por nível (A1–C2).
+De acordo com as listas de vocabulário da Oxford Learner’s Dictionaries, existem dois conjuntos principais:
 
-O projeto já conta com cerca de **5 mil palavras do dicionário de Oxford**, que representam as palavras mais usadas na língua inglesa.
+- Oxford 3000: contém as 3 000 palavras mais importantes para quem está aprendendo inglês, nos níveis A1 a B2.
 
+- Oxford 5000: expande o Oxford 3000 com mais 2 000 termos, ideal para aprendizes de nível intermediário superior a avançado (B2–C1) 
+quizlet.com
+
+
+Ou seja, essas 5 000 palavras formam um núcleo essencial que permite maior compreensão e fluência. Com o vocabulário dessas palavras, torna-se muito mais fácil entender e ser entendido em situações cotidianas e acadêmicas.
+
+Esta aplicação web foi desenvolvida para cadastrar e contar palavras em inglês, permitindo que o usuário registre seus usos individuais, acompanhe métricas pessoais e visualize estatísticas agrupadas por nível de proficiência (A1–C2).
+
+O projeto já inclui o cadastro dessas 5 000 palavras listadas pelo Oxford, oferecendo uma base robusta de vocabulário para o usuário interagir.
+
+- [Dicionário de oxford](https://www.oxfordlearnersdictionaries.com/us/wordlists/oxford3000-5000)
 
 ## Arquitetura
 
