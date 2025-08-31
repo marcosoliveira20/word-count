@@ -4,7 +4,25 @@ Aplicação web para cadastro e contagem de palavras em inglês, permitindo regi
 
 O projeto já conta com cerca de **5 mil palavras do dicionário de Oxford**, que representam as palavras mais usadas na língua inglesa.
 
+
+## Arquitetura
+
+A seguir estão dois diagramas que exemplificam como os compenentes se conectam na solução.
+
+
+
+### Diagrama de Cadastro de uma palavra
+![Arquitetura - Cadastro de Palavras](./images/solucoes_cadastro.png)
+
+
+
+### Diagrama de dowload das palavras cadastradas pelo usuário
+![Arquitetura - Dowload de Palavras](./images/solucoes_dowload.png)
+
+
 ## 🚀 Stack utilizada
+
+As tecnologias usadas foram escolhidas pensando em opções open source, seguras e escaláveis, que pudessem ser containerizadas, de forma que não seja necessário instalar nada além do Docker, promovendo uma melhor experiência para o desenvolvimento (DevEx), além de incentivar o aprendizado com tecnologias amplamente adotadas pelo mercado.
 
 * **Frontend:** Angular 17+ (standalone components, `HttpClient`, **proxy** para `/api`).
 * **Backends:** Spring Boot 3.5 (microsserviços `word-manager` e `file-manager`).

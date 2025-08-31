@@ -11,7 +11,7 @@ export class WordService {
   constructor(private http: HttpClient) {}
 
   createWord(name: string){
-    return this.http.post(`${this.base}/usage`, { name });
+    return this.http.post(`${this.base}/usages`, { name });
   }
 
   getLevels(): Observable<{levels: {level: string; count: number}[]}>{
@@ -40,7 +40,7 @@ export class WordService {
   }
 
   getCount(): Observable<number> {
-    return this.http.get<WordCountResponse | number>(this.base + '/info').pipe(
+    return this.http.get<WordCountResponse | number>(this.base + '/infos').pipe(
       map((resp: any) => {
 
         if(resp.number) return resp.number;
