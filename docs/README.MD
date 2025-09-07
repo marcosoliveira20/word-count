@@ -50,7 +50,7 @@ Cada ADR possui um status:
 
 ## 🔄 Como contribuir
 1. Crie um novo arquivo em `docs/adr/` com o próximo número sequencial.  
-2. Use o [template.md](./docs/template.md) como base.  
+2. Use o [template.md](./adr/template.md) como base.  
 3. Abra PR para revisão da equipe.  
 
 ---

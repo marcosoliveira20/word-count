@@ -30,6 +30,10 @@ A seguir estão dois diagramas que exemplificam como os compenentes se conectam 
 ### Diagrama de dowload das palavras cadastradas pelo usuário
 ![Arquitetura - Dowload de Palavras](./images/solucoes_dowload.png)
 
+## Documentação
+
+Para encontrar mais detalhes sobre as escolhas tecnologicas deste projeto visite /docs lá você encontrará os principais motivadores de cada escolha e quais outros cenários foram avaliados
+
 
 ## 🚀 Stack utilizada
 
