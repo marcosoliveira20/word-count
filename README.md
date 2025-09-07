@@ -20,15 +20,18 @@ O projeto já inclui o cadastro dessas 5 000 palavras listadas pelo Oxford, ofer
 
 A seguir estão dois diagramas que exemplificam como os compenentes se conectam na solução.
 
-
+| 🚧 Repositório e documentação em construção 🚧 
 
 ### Diagrama de Cadastro de uma palavra
-![Arquitetura - Cadastro de Palavras](./images/solucoes_cadastro.png)
+![Arquitetura - Cadastro de Palavras](./docs/assets/architecture/solucoes/aplicacao/solucoes_cadastro.png)
 
 
 
 ### Diagrama de dowload das palavras cadastradas pelo usuário
-![Arquitetura - Dowload de Palavras](./images/solucoes_dowload.png)
+![Arquitetura - Dowload de Palavras](./docs/assets/architecture/solucoes/aplicacao/solucoes_dowload.png)
+
+### Diagrama com visão analítica
+![Arquitetura - Dowload de Palavras](./docs/assets/architecture/solucoes/aplicacao/solucoes_dowload.png)
 
 ## Documentação
 
