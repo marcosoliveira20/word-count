@@ -31,7 +31,7 @@ A seguir estão dois diagramas que exemplificam como os compenentes se conectam 
 ![Arquitetura - Dowload de Palavras](./docs/assets/architecture/solucoes/aplicacao/solucoes_dowload.png)
 
 ### Diagrama com visão analítica
-![Arquitetura - Dowload de Palavras](./docs/assets/architecture/solucoes/aplicacao/solucoes_dowload.png)
+![Arquitetura - Dowload de Palavras](./docs/assets/architecture/solucoes/dados_ia/data_ia.png)
 
 ## Documentação
 
