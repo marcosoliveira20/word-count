@@ -122,9 +122,14 @@ O script faz:
 
 ## 🔮 Próximos passos
 
-* Integrar **Kong** como API Gateway (autN/autZ, rate limit, roteamento).
-* Implementar **upload de arquivos**.
-* Suportar **digitação/análise de textos maiores**.
+1. **Painel de Progresso**: 
+   - Exibe o progresso do usuário em relação às 5 mil palavras, mostrando quantas palavras ele já aprendeu por nível (A1, A2, B1, B2, C1).
+
+2. **Categorização Automática de Novas Palavras**:
+   - Ao inserir uma palavra nova que não está no vocabulário padrão, o sistema utiliza IA para classificá-la no nível adequado e identificar a categoria gramatical.
+
+3. **Cadastro de mais de uma palavra por vez**:
+   - Permitir o cadastro de mais de uma palavra por vez para que seja possível ter o contexto de como está palavra foi usada.
 
 ---
 

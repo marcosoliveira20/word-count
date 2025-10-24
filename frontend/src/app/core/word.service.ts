@@ -36,7 +36,7 @@ export class WordService {
 
   addWord(name: string): Observable<void> {
     const body: Word = { name };
-    return this.http.post<void>(`${this.base}/usage`, body);
+    return this.http.post<void>(`${this.base}/usages`, body);
   }
 
   getCount(): Observable<number> {

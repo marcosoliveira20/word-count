@@ -50,4 +50,7 @@ Thumbs.db
 # Arquivos .txt (logs, dumps, notas, etc)
 # ======================================
 *.txt
+*.csv
+/test/*
+
 
