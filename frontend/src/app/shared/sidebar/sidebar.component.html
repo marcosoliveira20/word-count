@@ -1,0 +1,51 @@
+<section class="sidebar" [class.compact]="!isExpanded">
+  <!-- topo: botão de toggle -->
+  <div class="top">
+    <button
+      type="button"
+      mat-icon-button
+      (click)="toggleMenu.emit()"
+      [matTooltip]="!isExpanded ? 'Expandir' : null"
+      matTooltipPosition="right"
+      aria-label="Alternar menu lateral"
+    >
+      <mat-icon>{{ isExpanded ? 'keyboard_backspace' : 'dehaze' }}</mat-icon>
+    </button>
+  </div>
+
+  <!-- navegação -->
+<mat-nav-list class="nav">
+  <a
+    mat-list-item
+    *ngFor="let route of routeLinks"
+    [routerLink]="route.link"
+    routerLinkActive="active-link"
+    [matTooltip]="!isExpanded ? route.name : null"
+    matTooltipPosition="right"
+  >
+    <mat-icon matListItemIcon>{{ route.icon }}</mat-icon>
+
+    <span matLine *ngIf="isExpanded">{{ route.name }}</span>
+  </a>
+</mat-nav-list>
+
+  <mat-divider></mat-divider>
+
+  <!-- empurra o logout para o final -->
+  <div class="spacer"></div>
+
+  <!-- logout no rodapé -->
+  <div class="bottom">
+    <button
+      mat-button
+      class="logout-btn"
+      (click)="logout()"
+      [matTooltip]="!isExpanded ? 'Sair' : null"
+      matTooltipPosition="right"
+      aria-label="Sair"
+    >
+      <mat-icon>logout</mat-icon>
+      <span *ngIf="isExpanded">Logout</span>
+    </button>
+  </div>
+</section>

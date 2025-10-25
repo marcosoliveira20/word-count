@@ -1,17 +1,103 @@
-    .panel{ max-width: 920px; margin: 0 auto; }
-    h2{ margin:0 0 18px; color:#1F271B; }
-    .cards{ display:flex; flex-direction:column; gap:14px; }
-    .card{
-      display:grid; grid-template-columns: 80px 1fr 110px; align-items:center;
-      background:#3F6B4A; color:#fff; border-radius:12px; padding:14px 16px;
-    }
-    .left{ font-weight:700; font-size:18px; text-align:center; }
-    .middle{ font-weight:500; }
-    .action{
-      justify-self:end; background:#296B45; color:#fff; text-decoration:none; padding:8px 12px; border-radius:8px;
-    }
-    .action:hover{ filter:brightness(0.95); }
-    .skeleton-list{ display:flex; flex-direction:column; gap:12px; }
-    .skeleton{ height:52px; border-radius:12px; background:linear-gradient(90deg,#e9ecef 25%,#f8f9fa 37%,#e9ecef 63%); background-size:400% 100%; animation:shimmer 1.4s ease infinite; }
-    @keyframes shimmer{ 0%{background-position:100% 0} 100%{background-position:-100% 0} }
-  
+:root {
+  --bg: #f5f7f4;
+  --text: #1f271b;
+
+  --card-bg: white;
+  --card-text: #8d6464;
+
+  --action-bg: #2e6a45;
+  --action-hover: #265b3b;
+
+  --skeleton-light: #f8f9fa;
+  --skeleton-dark: #e9ecef;
+}
+
+.panel {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 16px;
+
+  &__title {
+    margin: 0 0 18px;
+    color: var(--text);
+    font-weight: 700;
+  }
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Card com fundo verde */
+.card {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+
+  background: white;
+  color: var(--card-text);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  &:hover {
+    filter: brightness(0.97);
+  }
+}
+
+.card__left {
+  font-weight: 700;
+  font-size: 18px;
+  text-align: center;
+}
+
+.card__middle {
+  font-weight: 500;
+}
+
+.card__action {
+  justify-self: end;
+  background: var(--action-bg);
+  color: #1f271b;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--action-hover);
+  }
+}
+
+/* Skeleton */
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-dark) 25%,
+    var(--skeleton-light) 37%,
+    var(--skeleton-dark) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}

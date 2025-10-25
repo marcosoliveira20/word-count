@@ -1,5 +1,5 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WordService } from '../../core/word.service';
 
@@ -11,25 +11,27 @@ const isLevel = (v: string): v is Level =>
 @Component({
   selector: 'app-insights',
   standalone: true,
-  imports: [NgFor, NgIf, AsyncPipe, RouterLink],
+  imports: [NgFor, NgIf, RouterLink],
   templateUrl: './insights.page.html',
-  styleUrls: ['./insights.page.scss']})
+  styleUrls: ['./insights.page.scss']
+})
 export default class InsightsPage implements OnInit {
   private svc = inject(WordService);
   levels = signal<LevelCount[]>([]);
-  placeholders = Array.from({length: 5});
+  placeholders = Array.from({ length: 5 });
 
-ngOnInit(): void {
-  this.svc.getLevels().subscribe({
-    next: (res) => {
-      const normalized: LevelCount[] = (res.levels ?? [])
-        .map(x => ({ level: (x.level ?? '').toUpperCase(), count: x.count }))
-        .filter(x => isLevel(x.level))
-        .map(x => ({ level: x.level as Level, count: x.count }));
-      this.levels.set(normalized);
-    },
-    error: () => this.levels.set([])
-  });
-}
+  ngOnInit(): void {
+    this.svc.getLevels().subscribe({
+      next: (res) => {
+        const normalized: LevelCount[] = (res.levels ?? [])
+          .map(x => ({ level: (x.level ?? '').toUpperCase(), count: x.count }))
+          .filter(x => isLevel(x.level))
+          .map(x => ({ level: x.level as Level, count: x.count }));
+        this.levels.set(normalized);
+      },
+      error: () => this.levels.set([])
+    });
+  }
 
+  trackByLevel = (_: number, item: LevelCount) => item.level;
 }

@@ -9,23 +9,12 @@ import { getProfile, keycloak } from '../../keycloak.init';
   imports: [RouterOutlet, SidebarComponent],
   template: `
 <div class="shell">
-  <app-sidebar></app-sidebar>
-
   <main class="content">
-    <header class="header">
-      <h1>CountWord</h1>
-      <div class="user">
-        <span *ngIf="userName">Olá, {{ userName }}</span>
-        <button (click)="logout()">Logout</button>
-      </div>
-    </header>
-
     <section class="page">
-      <router-outlet></router-outlet>
+      <router-outlet> </router-outlet>
     </section>
   </main>
 </div>
-
   `,
   styles:[`
     .shell{ display:flex; min-height:100vh; background:#F5F7F5; }

@@ -1,18 +1,24 @@
-  <div class="panel">
-    <h2>Insights</h2>
+<div class="panel">
+  <h2 class="panel__title">Insights</h2>
 
-    <div class="cards" *ngIf="levels().length; else loading">
-      <article class="card" *ngFor="let item of levels()">
-        <div class="left">{{ item.level }}</div>
-        <div class="middle">{{ item.count }} Palavras conhecidas</div>
-        <a class="action" [routerLink]="['/words']" [queryParams]="{level: item.level}">ver mais</a>
-
-      </article>
-    </div>
-
-    <ng-template #loading>
-      <div class="skeleton-list">
-        <div class="skeleton" *ngFor="let _ of placeholders"></div>
-      </div>
-    </ng-template>
+  <div class="cards" *ngIf="levels().length; else loading">
+    <article class="card" *ngFor="let item of levels(); trackBy: trackByLevel">
+      <div class="card__left">{{ item.level }}</div>
+      <div class="card__middle">{{ item.count }} Palavras conhecidas</div>
+<a
+  class="card__action"
+  [routerLink]="['/words']"
+  [queryParams]="{ level: item.level }"
+  attr.aria-label="ver mais sobre {{ item.level }}"
+>
+  ver mais
+</a>
+    </article>
   </div>
+
+  <ng-template #loading>
+    <div class="skeleton-list">
+      <div class="skeleton" *ngFor="let _ of placeholders"></div>
+    </div>
+  </ng-template>
+</div>
