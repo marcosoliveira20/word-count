@@ -1,0 +1,76 @@
+<mat-card class="page">
+  <h1 class="title">Count Word</h1>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form" autocomplete="off">
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Cadastre uma nova palavra</mat-label>
+      <input matInput formControlName="word" aria-label="Cadastre uma nova palavra" />
+      <mat-error *ngIf="form.controls.word.hasError('required')">
+        A palavra é obrigatória.
+      </mat-error>
+    </mat-form-field>
+
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="form.invalid || isSubmitting()"
+      aria-label="Enviar palavra"
+    >
+      <mat-icon>send</mat-icon>
+      Enviar
+    </button>
+  </form>
+
+  <mat-divider class="divider"></mat-divider>
+
+  <!-- Upload -->
+  <div class="upload">
+    <input
+      id="fileUpload"
+      type="file"
+      (change)="onFileSelected($event)"
+      class="upload-input"
+      hidden
+    />
+    <button type="button" mat-stroked-button (click)="fileUpload.click()" #fileUploadBtn>
+      <mat-icon>folder_open</mat-icon>
+      Escolher arquivo
+    </button>
+    <span class="file-name" [class.empty]="!selectedFile">
+      {{ selectedFile?.name || 'Nenhum arquivo selecionado' }}
+    </span>
+    <button
+      type="button"
+      mat-flat-button
+      color="accent"
+      (click)="onUpload()"
+      [disabled]="!selectedFile || isUploading()"
+      aria-label="Enviar arquivo"
+    >
+      <mat-icon>upload</mat-icon>
+      Enviar Arquivo
+    </button>
+
+    <!-- input real escondido, acionado pelo botão -->
+    <input
+      #fileUpload
+      id="hiddenInput"
+      type="file"
+      (change)="onFileSelected($event)"
+      hidden
+    />
+  </div>
+
+  <div class="feedback">
+    <p *ngIf="successMsg()" class="ok">
+      <mat-icon>check_circle</mat-icon> {{ successMsg() }}
+    </p>
+    <p *ngIf="errorMsg()" class="error">
+      <mat-icon>error</mat-icon> {{ errorMsg() }}
+    </p>
+    <p *ngIf="total() !== null" class="total">
+      Total de palavras cadastradas: <strong>{{ total() }}</strong>
+    </p>
+  </div>
+</mat-card>

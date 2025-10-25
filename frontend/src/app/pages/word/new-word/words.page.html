@@ -1,0 +1,67 @@
+<header class="header">
+  <span class="pill" aria-label="Nível">{{ level() }}</span>
+  <h2 class="title">Lista de Palavras</h2>
+</header>
+
+<!-- loading -->
+<div *ngIf="loading()" class="skeleton-list" role="status" aria-live="polite">
+  <div class="skeleton" *ngFor="let _ of [1,2,3,4,5]"></div>
+</div>
+
+<!-- erro -->
+<p *ngIf="!loading() && error()" class="error" role="alert">
+  {{ error() }}
+</p>
+
+<!-- tabela -->
+<div class="table-wrap" *ngIf="!loading() && !error()">
+  <table mat-table [dataSource]="pagedRows" aria-label="Palavras por nível">
+    <!-- Palavra -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Palavra</th>
+      <td mat-cell *matCellDef="let w">{{ w.name }}</td>
+    </ng-container>
+
+    <!-- N vezes -->
+    <ng-container matColumnDef="used_times">
+      <th mat-header-cell *matHeaderCellDef class="num">N vezes</th>
+      <td mat-cell *matCellDef="let w" class="num">{{ w.used_times }}</td>
+    </ng-container>
+
+    <!-- Data 1º uso -->
+    <ng-container matColumnDef="first_use">
+      <th mat-header-cell *matHeaderCellDef class="num">Data 1º uso</th>
+      <td mat-cell *matCellDef="let w" class="num">
+        {{ w.first_use | date: 'dd-MM-yyyy' }}
+      </td>
+    </ng-container>
+
+    <!-- Data último uso -->
+    <ng-container matColumnDef="last_use">
+      <th mat-header-cell *matHeaderCellDef class="num">Data último uso</th>
+      <td mat-cell *matCellDef="let w" class="num">
+        {{ w.last_use | date: 'dd-MM-yyyy' }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+    <!-- vazio -->
+    <tr class="empty-row" *ngIf="rows().length === 0">
+      <td class="empty" mat-cell colspan="4">Nenhum registro para este nível.</td>
+    </tr>
+  </table>
+
+  <!-- Paginador -->
+  <mat-paginator
+    [length]="rows().length"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex()"
+    [pageSizeOptions]="[10]"
+    showFirstLastButtons
+    (page)="onPageChange($event)"
+    aria-label="Paginação"
+  >
+  </mat-paginator>
+</div>

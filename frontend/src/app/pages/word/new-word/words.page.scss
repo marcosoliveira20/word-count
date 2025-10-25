@@ -1,0 +1,60 @@
+:root {
+  --card: #ffffff;
+  --text: #1f271b;
+  --muted: #6b7a6f;
+  --row-border: #eef1ef;
+  --head-border: #e7ebe7;
+  --pill-bg: #19647e;
+  --pill-fg: #ffffff;
+  --skeleton-a: #e9ecef;
+  --skeleton-b: #f8f9fa;
+}
+
+.header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.pill {
+  background: var(--pill-bg); color: var(--pill-fg);
+  font-weight: 700; padding: 6px 12px; border-radius: 10px; line-height: 1;
+}
+.title { margin: 0; color: var(--text); }
+
+.table-wrap {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+  overflow: hidden; /* integra bem com o paginator do Material */
+}
+
+/* MatTable */
+table { width: 100%; }
+
+th.mat-mdc-header-cell {
+  font-weight: 700; color: var(--text);
+  border-bottom: 1px solid var(--head-border);
+}
+
+td.mat-mdc-cell {
+  border-bottom: 1px solid var(--row-border);
+  color: var(--text);
+}
+
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.empty-row td.empty {
+  text-align: center; color: var(--muted); padding: 18px 12px;
+}
+
+/* loading */
+.skeleton-list { display: flex; flex-direction: column; gap: 12px; }
+.skeleton {
+  height: 52px; border-radius: 12px;
+  background: linear-gradient(90deg, var(--skeleton-a) 25%, var(--skeleton-b) 37%, var(--skeleton-a) 63%);
+  background-size: 400% 100%; animation: shimmer 1.2s ease infinite;
+}
+@keyframes shimmer { 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+
+/* responsivo básico */
+@media (max-width: 640px) {
+  th.mat-mdc-header-cell, td.mat-mdc-cell { padding: 12px 8px; }
+}

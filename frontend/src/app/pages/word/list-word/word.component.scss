@@ -1,0 +1,73 @@
+.page {
+  max-width: 720px;
+  margin: 80px auto 0;
+  padding: 24px 24px 28px;
+  border-radius: 16px;
+}
+
+.title {
+  text-align: center;
+  font-size: 28px;
+  margin: 0 0 20px;
+  color: #1f271b;
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  .field {
+    flex: 1;
+  }
+}
+
+.divider {
+  margin: 16px 0 12px;
+}
+
+/* Upload */
+.upload {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .file-name {
+    font-size: 0.95rem;
+    color: #1f271b;
+  }
+  .file-name.empty {
+    color: #8b8b8b;
+  }
+}
+
+/* Feedback */
+.feedback {
+  margin-top: 14px;
+  font-size: 14px;
+
+  .ok {
+    color: #2e7d32;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .error {
+    color: #9c0d38;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .total {
+    color: #1f271b;
+  }
+}
+
+/* Ajustes responsivos */
+@media (max-width: 600px) {
+  .form {
+    flex-direction: column;
+
+    button[mat-flat-button] {
+      width: 100%;
+    }
+  }
+}

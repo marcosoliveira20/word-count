@@ -27,9 +27,9 @@ export class SidebarComponent {
 
   // Deixei só rotas "de navegação" aqui
   routeLinks = [
+    { link: '',    name: 'Cadastrar Palavra(s) ',    icon: 'article'    },
+    { link: 'words',    name: 'Listar Palavras',    icon: 'article'    },
     { link: 'insights', name: 'Insights', icon: 'dashboard' },
-    { link: 'words',    name: 'Words',    icon: 'article'    },
-    { link: '',    name: 'New Word ',    icon: 'article'    },
   ];
 
   async logout() {
